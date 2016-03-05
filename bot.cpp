@@ -49,6 +49,70 @@ struct point
   point() {};
 };
 
+struct Doublepoint
+{
+  double x;
+  double y;
+  Doublepoint(double x1,double y1) {
+      x=x1;
+      y=y1;
+  }
+  Doublepoint() {};
+};
+
+struct equation
+{
+    double a;
+    double b;
+    double c;
+    double d;
+    equation() {}
+    equation(double m,double n,double o,double p)
+    {
+        a=m;
+        b=n;
+        c=o;
+        d=p;
+    }
+
+};
+ equation getEqn(point i) {
+     cerr << "eq :-> y = a*x*x + b*x + c " << endl;
+      equation eqn(i.x*i.x,i.x,1,-i.y);
+      return eqn;
+ }
+ equation subtractEquation(equation i,equation j) {
+     return equation(i.a-j.a,i.b-j.b,i.c-j.c,i.d-j.d) ;
+ }
+   Doublepoint getAB(equation i,equation j) {
+        // the equation format is  ax + by =  e   and cx +dy = f
+        double a = i.a;
+        double b = i.b;
+        double e = i.d * (-1);
+
+         double c = j.a;
+        double d = j.b;
+        double f = j.d * (-1);
+
+      double determinant = a*d - b*c;
+    if(determinant != 0) {
+        double x = (e*d - b*f)/determinant;
+        double y = (a*f - e*c)/determinant;
+        Doublepoint doublePoint(x,y);
+        return doublePoint;
+       // printf("Cramer equations system: result, x = %f, y = %f\n", x, y);
+    } else {
+       cerr << "problem " << endl;
+    }
+  }
+  double getC(Doublepoint ab,equation eqn) {
+      double c = eqn.d + eqn.a*ab.x + eqn.b*ab.y ;
+      return c*(-1);
+}
+
+
+
+
 struct pod
 {
   int x;
@@ -69,6 +133,8 @@ struct pod
     pod() {};
 
 };
+
+
 
 point getAnglePoint(point centre, double angle) {
     double y = sin (angle*PI/180)*400;
@@ -134,6 +200,41 @@ double get_distance(int x1,int y1,int x2,int y2) {
 double get_distance(point i,point j) {
     return get_distance(i.x,i.y,j.x,j.y) ;
 }
+double podToDesAngle =0 ;
+double podToEnemyAngle = 0;
+double getPodToDesAngle()
+{
+    return podToDesAngle;
+}
+double getPodToEnemyAngle()
+ {
+      return podToEnemyAngle;
+ }
+point minAngle(point center,point angleLine,int x,int y,int r,int subtract[2]) {
+    int arrX[2];
+    int arrY[2];
+    int xAdd = (subtract[0]<0) ? -1 : 1 ;
+    int yAdd = (subtract[1]<0) ? -1 : 1;
+    double minAngle= 500.00;
+    point desPoint;
+
+   rep(i,r)
+   {
+       int x1=x+(i*xAdd);
+       int y1=y+(i*yAdd);
+        point temp(x1,y1);
+        point line =  getLine(center,temp);
+        double angle= getAngleTwoVector(angleLine,line);
+        if(minAngle>angle) {
+           minAngle = angle;
+            desPoint = temp;
+        }
+   }
+   cerr << "min angle " << minAngle << "desPoint " << desPoint.x << " " << desPoint.y << endl;
+   podToDesAngle =  minAngle;
+   return desPoint;
+}
+
 
 bool getShield(pod me,pod enemy1,pod enemy2) {
     point myPod(me.x,me.y);
@@ -166,6 +267,8 @@ int main()
     pod OponentPod[2];
     int checkpointCount;
     int subtractValue = 300;
+    int chekPointRadious = 400;
+    int podRadiuos = 400;
    //cout << getYValue(3731,63.927,12,-773) << endl;;
     cin >> checkpointCount; cin.ignore();
     for (int i = 0; i < checkpointCount; i++) {
@@ -247,16 +350,16 @@ int main()
         point destinationLineIncrY = getLine(firstPodCenter,firstPodChekPointIncreaseY);
 
         double angleToDestination1 = getAngleTwoVector(destinationLine,angleLine);
-        double angleToDestination2 = getAngleTwoVector(angleLine,destinationLine);
-        double angleToDestination = (angleToDestination1 >= angleToDestination2) ? angleToDestination2 : angleToDestination1 ;
+        double angleToDestination = getAngleTwoVector(angleLine,destinationLine);
+       // double angleToDestination = (angleToDestination1 >= angleToDestination2) ? angleToDestination2 : angleToDestination1 ;
 
         double angleToDestinationX1 = getAngleTwoVector(destinationLineIncrX,angleLine);
-        double angleToDestinationX2 = getAngleTwoVector(angleLine,destinationLineIncrX);
-        double angleToDestinationX = (angleToDestinationX1 >= angleToDestinationX2) ? angleToDestinationX2 : angleToDestinationX1 ;
+        double angleToDestinationX = getAngleTwoVector(angleLine,destinationLineIncrX);
+       // double angleToDestinationX = (angleToDestinationX1 >= angleToDestinationX2) ? angleToDestinationX2 : angleToDestinationX1 ;
 
         double angleToDestinationY1 = getAngleTwoVector(destinationLineIncrY,angleLine);
-        double angleToDestinationY2 = getAngleTwoVector(angleLine,destinationLineIncrY);
-        double angleToDestinationY = (angleToDestinationY1 >= angleToDestinationY2) ? angleToDestinationY2 : angleToDestinationY1 ;
+        double angleToDestinationY = getAngleTwoVector(angleLine,destinationLineIncrY);
+        //double angleToDestinationY = (angleToDestinationY1 >= angleToDestinationY2) ? angleToDestinationY2 : angleToDestinationY1 ;
 
         int subtract[2];
         if(angleToDestination>=angleToDestinationX) subtract[0]=subtractValue;
@@ -265,7 +368,12 @@ int main()
         if(angleToDestination>=angleToDestinationY) subtract[1]=subtractValue;
         else subtract[1]=-subtractValue;
 
+        point newDestination(checkPointX[checkPointList[0]] +subtract[0],checkPointY[checkPointList[0]] +  subtract[1]);
+        point newDestinationLine = getLine(firstPodCenter,newDestination);
+        angleToDestination = getAngleTwoVector(angleLine,newDestinationLine);
 
+         newDestination = minAngle(firstPodCenter,angleLine,firstPodChekPoint.x,firstPodChekPoint.y,chekPointRadious,subtract);
+         angleToDestination = getPodToDesAngle();
 
 
 
@@ -275,35 +383,42 @@ int main()
          if(devider <=0) devider = 1;
        //  cerr << "devider " <<  devider << endl;
          threashHold[0]=200/devider;
-         double distanceFromDestination = get_distance(firstPodCenter,firstPodChekPoint);
+         double distanceFromDestination = get_distance(firstPodCenter,newDestination);
         // cerr <<  distanceFromDestination << endl;
          if(threashHold[0]<100 && distanceFromDestination >10000) threashHold[0]+=80;
          else if(threashHold[0]<100 && distanceFromDestination >6000) threashHold[0]+=70;
          else if(threashHold[0]<100 && distanceFromDestination >4000) threashHold[0]+=60;
          else if(threashHold[0]<100 && distanceFromDestination >2000) threashHold[0]+=50;
 
+         if(distanceFromDestination<=1000 )
+         {threashHold[0] = 10;
+          //newDestination =firstPodChekPoint;
+         }
+
          int MyPodX=firstPodCenter.x;
          int DesX = firstPodChekPoint.x;
-        int destinationX = getXValue(firstPodCenter,firstPodChekPoint);
-        double destinationY = getYValue(destinationX,angleToDestination,MyPod[0].angle,MyPod[0].vx);
+      //  int destinationX = getXValue(firstPodCenter,firstPodChekPoint);
+       // double destinationY = getYValue(destinationX,angleToDestination,MyPod[0].angle,MyPod[0].vx);
        // cerr << "problem " << destinationY << endl;
-        int desY = floor(destinationY);
-       cerr << "desx " << destinationX << "des y "  <<  desY << endl;
+       // int desY = floor(destinationY);
+      // cerr << "desx " << destinationX << "des y "  <<  desY << endl;
 
-        // Write an action using cout. DON'T FORGET THE "<< endl"
-        // To debug: cerr << "Debug messages..." << endl;
+       //  cout <<newDestination.x << " " << newDestination.y << " " << threashHold[0] << " choose first" << endl;
+       cout <<oponentX[0] << " " << oponentX[1]<< " " << threashHold[0] << " choose first" << endl;;
 
-         //if((desY <0 || desY>9000) || (destinationX<0 || destinationX >16000 ) )
-            if(getShield(MyPod[0],OponentPod[0],OponentPod[1]))
+          /*
+            if(getShield(MyPod[0],OponentPod[0],OponentPod[1]) && 2==3)
               cout <<checkPointX[checkPointList[0]] + subtract[0]<< " " << checkPointY[checkPointList[0]] + subtract[1] << " SHIELD"  << " SHIELD" << endl;
            else
-           cout <<checkPointX[checkPointList[0]] + subtract[0]<< " " << checkPointY[checkPointList[0]] + subtract[1] << " " << threashHold[0] << " choose first" << endl;
-     //   else  cout <<destinationX << " " << desY << " " << "200 " << " !!!!!!!!!!!!!" << endl;
-        //  else
-            // cout <<checkPointX[checkPointList[0]] << " " << checkPointY[checkPointList[0]] << " 100" <<endl;
+           cout <<checkPointX[checkPointList[0]] +subtract[0] << " " << checkPointY[checkPointList[0]] +  subtract[1]<< " " << threashHold[0] << " choose first" << endl;
+          */
+
+
+
         int oponentAtakId ;
         if(changeChekPoint[0] >=changeChekPoint[1]) oponentAtakId = 0;
         else  oponentAtakId = 1;
-        cout <<oponentX[oponentAtakId] << " " <<oponentY[oponentAtakId] << " 200"  << endl;
+       // cout <<oponentX[oponentAtakId] << " " <<oponentY[oponentAtakId] << " 200"  << endl;
+       cout <<oponentX[1] << " " <<oponentY[1] << " 200"  << endl;
     }
 }
