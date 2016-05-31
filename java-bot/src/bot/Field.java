@@ -18,6 +18,7 @@
 package bot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Field class
@@ -43,7 +44,49 @@ public class Field {
 		mMacroboard = new int[COLS / 3][ROWS / 3];
 		clearBoard();
 	}
+	public Field(List mboard,List macroBoard) {
+		mBoard = new int[COLS][ROWS];
+		mMacroboard = new int[COLS / 3][ROWS / 3];
+		clearBoard();
+		this.setMboard(mboard);
+		this.setMacroBoard(macroBoard);
+	}
+	private void  setMboard(List list) { 
+		int index = 0;
+		for (int x = 0; x < COLS; x++) {
+			for (int y = 0; y < ROWS; y++) {
+				mBoard[x][y] = (int) list.get(index++);
+			}
+		}
+		
+	}
+	private void setMacroBoard(List list) {
+		int index = 0 ;
+		for (int x = 0; x < COLS/3; x++) {
+			for (int y = 0; y < ROWS/3; y++) {
+				mMacroboard[x][y] = (int) list.get(index++);
+			}
+		}
+	}
 	
+	public List<Integer>  getMboard() {
+		List mBoardList = new ArrayList<>()  ;
+		for (int x = 0; x < COLS; x++) {
+			for (int y = 0; y < ROWS; y++) {
+				mBoardList.add(mBoard[x][y]) ;
+			}
+		}
+		return mBoardList ;
+	}
+	public List<Integer>  getMacroboard() {
+		List mBoardList = new ArrayList<>()  ;
+		for (int x = 0; x < COLS/3; x++) {
+			for (int y = 0; y < ROWS/3; y++) {
+				mBoardList.add(mMacroboard[x][y]) ;
+			}
+		}
+		return mBoardList ;
+	}
 	/**
 	 * Parse data about the game given by the engine
 	 * @param key : type of data given
@@ -114,6 +157,7 @@ public class Field {
 	private void clearMacroBoard() {
 		for (int x = 0; x < COLS/3; x++) {
 			for (int y = 0; y < ROWS/3; y++) {
+				if(mMacroboard[x][y]==-1)
 				mMacroboard[x][y] = 0;
 			}
 		}
@@ -124,6 +168,7 @@ public class Field {
 		int firstRow = rowIndex *  3;  
 		for (int x = firstCol; x < firstCol+3; x++) {
 			for (int y = firstRow; y < firstRow+3; y++) {
+				//int z =  mBoard[y][x] ;
 				if(mBoard[x][y] == 0) return false;
 			}
 		}
@@ -227,20 +272,27 @@ public class Field {
 		int checkLeftBottomDiagonal = 1; 
 		int checkRightBottomDiagonal = 1 ; 
 		//row and column check 
-		for(int row=0;row<ROWS/9;row++) { 
+		for(int row=0;row<ROWS/3;row++) { 
 			int checkHoriznotanl = 1;
 			int checkVertical =1;
 			for(int column = 0;column <COLS/3;column++) {
 				checkHoriznotanl = checkHoriznotanl * mMacroboard[column][row] ;
 				checkVertical = checkVertical * mMacroboard[row][column] ; 
+				if(mMacroboard[column][row] == -1) checkHoriznotanl *= 10 ; 
+				if(mMacroboard[row][column] == -1) checkVertical *= 10 ; 
 				if(row == column) {
 					checkLeftBottomDiagonal = checkLeftBottomDiagonal *  mMacroboard[row][column] ; 
+					if(mMacroboard[row][column] == -1) checkLeftBottomDiagonal *= 10 ;
 				} 
 				if(row==0 && column ==2) {
 					checkRightBottomDiagonal = checkRightBottomDiagonal *  mMacroboard[row][column] ; 
+					if(mMacroboard[row][column] == -1) checkRightBottomDiagonal *= 10 ;
 				}
 				if(row==2 && column ==0) {
 					checkRightBottomDiagonal = checkRightBottomDiagonal *  mMacroboard[row][column] *  mMacroboard[1][1]  ; 
+					if(mMacroboard[1][1] == -1) {
+						checkRightBottomDiagonal *= 10 ;
+					}
 				}
 			}
 			if(checkHoriznotanl == 8 || checkVertical == 8) return 2; 
@@ -253,15 +305,101 @@ public class Field {
 	} 
 	
 	public void updateTemporaryField(int mx,int my,int botID ) {
-		int macroBoardCol = mx/3; 
-		int macroBoardRow = my/3 ; 
+		int macroBoardCol = mx%3; 
+		int macroBoardRow = my%3 ; 
 		mBoard[mx][my] = botID;
+		
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
 		if(mMacroboard[macroBoardCol][macroBoardRow] == 1 ||mMacroboard[macroBoardCol][macroBoardRow] == 2 || ( mMacroboard[macroBoardCol][macroBoardRow] == 0 && isMacroFilled(macroBoardCol,macroBoardRow) == true ) ) {
 			setMacroBoard() ; 
 		} else {
 			clearMacroBoard() ;
 			mMacroboard[macroBoardCol][macroBoardRow] =-1;
 			
-		}	
+		}
+		
+	}
+	
+	private int  getConditionMacroBoard(int mCol,int mRow) { 
+		 if(isMacroFilled(mCol, mRow) == true) return 0;
+		int firstCol = mCol * 3; 
+		int firstRow = mRow *  3;  
+		int horizon = 1 ; 
+		int vertical = 1 ;
+		for (int x = firstCol; x < firstCol+3; x++) {
+			 vertical = 1;
+			for (int y = firstRow; y < firstRow+3; y++) {
+				vertical *=  mBoard[x][y];
+			} 
+			if(vertical == 1  ) return 1;
+			if(vertical == 8 ) return 2;	
+		}
+		for (int x = firstRow; x < firstRow+3; x++) {
+			horizon = 1;
+			for (int y = firstCol; y < firstCol+3; y++) {
+				horizon *=  mBoard[y][x];
+			} 
+			if(horizon == 1  ) return 1;
+			if(horizon == 8 ) return 2;	
+		} 
+		int diagonal1 = mBoard[firstCol][firstRow] * mBoard[firstCol+1][firstRow+1] * mBoard[firstCol+2][firstRow+2] ;
+		int diagonal2 = mBoard[firstCol+2][firstRow] * mBoard[firstCol+1][firstRow+1] * mBoard[firstCol][firstRow+2] ;
+		
+		if(diagonal1 == 1 || diagonal2 == 1 ) return 1;
+		if(diagonal1 == 8 || diagonal2 == 8 ) return 2;	
+		return 0; 
+		
+	}
+	public int hursistic(int id) {
+		int horizon_sum = 0 ; 
+		int vertical_sum = 0;
+		for (int x = 0; x < COLS/3; x++) {
+			int horizon = 0 ; 
+			int vertical = 0;
+			  for (int y = 0; y < ROWS/3; y++) {
+				   if(mMacroboard[x][y] == id) {
+					   if(vertical == 0) vertical += 5; 
+					   else  vertical += 10; 
+				  } else if(mMacroboard[x][y] != 0) {
+					  if(vertical == 0) vertical -= 5; 
+					   else  vertical -= 10; 
+				  }
+						  
+			  }
+			  vertical_sum += vertical;
+		}
+		for (int y = 0; y < COLS/3; y++) {
+			int horizon = 0 ; 
+			int vertical = 0;
+			  for (int x = 0; x < ROWS/3; x++) {
+				   if(mMacroboard[x][y] == id) {
+					   if(horizon == 0) horizon += 5; 
+					   else  horizon += 10; 
+				  } else if(mMacroboard[x][y] != 0) {
+					  if(horizon == 0) horizon -= 5; 
+					   else  horizon -= 10; 
+				  }
+						  
+			  }
+			  horizon_sum += horizon;
+		}
+		return  horizon_sum + vertical_sum;
+	}
+	public int seeEffect(int mx ,int my,int botId,int opId) {
+		int effect = 0 ;
+		if(mMacroboard[mx/3][my/3]==botId)  effect =100;
+		if(whoWinGame()==botId) effect =600; 
+		mBoard[mx][my] = opId;
+		
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(mMacroboard[mx/3][my/3]==opId)  effect =150;
+		if(whoWinGame()==opId) effect =300; 
+		
+		//fall back 
+        mBoard[mx][my] = botId;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(botId == BotParser.oBotID) return effect *(-1);
+		return effect;
+		
 	}
 }

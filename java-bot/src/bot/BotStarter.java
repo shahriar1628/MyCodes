@@ -37,11 +37,17 @@ public class BotStarter {
      * @return The column where the turn was made.
      */
 	public Move makeTurn(Field field) {
+		/*
 		Random r = new Random();
 		ArrayList<Move> moves = field.getAvailableMoves();
-		Move move = moves.get(r.nextInt(moves.size())); /* get random move from available moves */
+		Move move = moves.get(r.nextInt(moves.size())); 
+		*/
+		MiniMaxAlgorith minimax = new MiniMaxAlgorith();
 		
-		return move;
+		Integer result = minimax.miniMax(field, 0, BotParser.mBotId,-10000,10000);
+		Move move = new Move() ;
+		move = minimax.getTurn() ;
+		return move ;
 	}
 
 
