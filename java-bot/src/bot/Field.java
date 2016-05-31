@@ -114,6 +114,7 @@ public class Field {
 	private void clearMacroBoard() {
 		for (int x = 0; x < COLS/3; x++) {
 			for (int y = 0; y < ROWS/3; y++) {
+				if(mMacroboard[x][y]==-1)
 				mMacroboard[x][y] = 0;
 			}
 		}
@@ -253,8 +254,8 @@ public class Field {
 	} 
 	
 	public void updateTemporaryField(int mx,int my,int botID ) {
-		int macroBoardCol = mx/3; 
-		int macroBoardRow = my/3 ; 
+		int macroBoardCol = mx%3; 
+		int macroBoardRow = my%3 ; 
 		mBoard[mx][my] = botID;
 		if(mMacroboard[macroBoardCol][macroBoardRow] == 1 ||mMacroboard[macroBoardCol][macroBoardRow] == 2 || ( mMacroboard[macroBoardCol][macroBoardRow] == 0 && isMacroFilled(macroBoardCol,macroBoardRow) == true ) ) {
 			setMacroBoard() ; 
