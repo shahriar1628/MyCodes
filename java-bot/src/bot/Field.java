@@ -387,13 +387,13 @@ public class Field {
 	}
 	public int seeEffect(int mx ,int my,int botId,int opId) {
 		int effect = 0 ;
-		if(mMacroboard[mx/3][my/3]==botId)  effect =100;
-		if(whoWinGame()==botId) effect =600; 
+		if(mMacroboard[mx/3][my/3]==botId)  effect =10;
+		if(whoWinGame()==botId) effect =70; 
 		mBoard[mx][my] = opId;
 		
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
-		if(mMacroboard[mx/3][my/3]==opId)  effect =150;
-		if(whoWinGame()==opId) effect =300; 
+		if(mMacroboard[mx/3][my/3]==opId)  effect =10;
+		if(whoWinGame()==opId) effect =50; 
 		
 		//fall back 
         mBoard[mx][my] = botId;
@@ -402,4 +402,24 @@ public class Field {
 		return effect;
 		
 	}
+	public int crosscheck(int mx ,int my,int botId,int opId,int realID) {
+	
+		
+		int effect = 0 ;
+		mBoard[mx][my] = botId;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(whoWinGame()==botId) effect+=1000; 
+		
+		mBoard[mx][my] = opId;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(whoWinGame()==opId) effect +=1000; 
+		
+		//fall back 
+        mBoard[mx][my] = realID;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		return effect;
+		
+		
+	}
+	
 }
