@@ -5,100 +5,109 @@ import java.util.List;
 import java.util.Map;
 
 public class MiniMaxAlgorith { 
-	private Move _playerMove;
-	MiniMaxAlgorith () {
+	private Move _playerMove; 
+	private int _depth ;
+	MiniMaxAlgorith (int depth) {
 		_playerMove = new Move() ;
-		
+		_depth = depth; 
 	}
-
-	public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
+	
+public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		if(game.isFull() || game.whoWinGame() != 0 || game.getAvailableMoves().isEmpty()  ) return score(game,depth) ; 
 		int oponentBotID = 0;
 		if(botID == BotParser.mBotId) oponentBotID = BotParser.oBotID ; 
 		else oponentBotID = BotParser.mBotId ; 
 		depth++;
-		List scores = new ArrayList<Integer> () ; 
-		List moves = new ArrayList<Integer> () ;  
+        int returnScore = 0;
+        if(botID == BotParser.mBotId)  returnScore = -5000;
+        else returnScore = 5000;
 		List availabelMoves = game.getAvailableMoves() ; 
-		if(depth >9) return huristicanAnalysis(game,botID);
-        
-		if(availabelMoves.size()<=9  || depth <=1) {
-			for(int index =0; index<availabelMoves.size();index++) {
+		if(depth >this._depth) return huristicanAnalysis(game,botID); 
+		if(availabelMoves.size()>9 ) {
+			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) -10;  
+			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) +10;
+		}
+		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
-			   if(move.mX == 3 &&  move.mY == 2 && depth == 1   ) {
+			//   if(move.mX == 3 &&  move.mY == 2 && depth == 1   ) {
 			    //	System.out.println(move.getX() + " " + move.getY()) ;
-			   }
+			 //  }
 			   Field newGameInstance = null;
 			  newGameInstance = new Field(game.getMboard(),game.getMacroboard()) ;
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
-				if(newGameInstance.getAvailableMoves().size()>9) {
-					int effect = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID)/depth;
-					if(effect !=0) getScore = effect ;  
-				}
-				if(getScore == 0)
-				{
-					 getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita) ;
-						
-				} 
-				if(Math.abs(getScore) <=180 && Math.abs(getScore) >=180 ) {
-					
-				} else {
-					getScore = getScore + newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID)/depth;
-				}
-				
-				  if (depth == 1) {
-					  
+				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
+				if (depth == 1) {
 					 getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
-
-				    }
-				scores.add(getScore) ; 
-				moves.add(new Integer(index)) ;	
-				getScore = 0;
+				} 
+				if(newGameInstance.getAvailableMoves().size() > 9   ) {
+					if(getScore <=0 && botID == BotParser.mBotId) {
+						getScore = getScore - 100 ;
+					}
+					if(getScore >=0 && botID == BotParser.oBotID) {
+						getScore = getScore + 100 ;
+					}
+				}
+				if(depth == 1) {
+					//System.out.println(move.mX + " "+move.mY + " " + getScore );
+				}
 				
-				if(!scores.isEmpty()) {
 					if(botID == BotParser.mBotId) {
-						int ind = getIndex(scores,true) ; 
-						alpha = getMax(alpha,(int) scores.get(ind));
+						int temp = getMax(returnScore,getScore) ;
+						if(temp != returnScore && depth == 1) 
+							this._playerMove = move;
+						returnScore = temp;
+						alpha = getMax(alpha,returnScore);
 						if(bita <=alpha) break;
 						}
 					if(botID == BotParser.oBotID) {
-						int ind = getIndex(scores,false) ;
-						bita = getMin(bita,(int) scores.get(ind));
+						returnScore = getMin(returnScore,getScore);
+						bita = getMin(bita,returnScore);
 						if(bita <=alpha) break;
-						}
-					} 
+						} 
+		}
+        return returnScore;
+		     
+}
+			
+	private int bestmoveByGreedyAlgo(Field game,int botID,int opBotID,int depth) {
+		List availabelMoves = game.getAvailableMoves() ;
+		int returnScore = 0; 
+		if(botID == BotParser.mBotId) returnScore = -1000;  
+		else returnScore = 1000; 
+		for(int index =0; index<availabelMoves.size();index++) {
+			Move move = (Move) availabelMoves.get(index) ;
+		   Field newGameInstance = null;
+		   int getScore  = 0;
+		   newGameInstance = new Field(game.getMboard(),game.getMacroboard()) ;
+		   newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID);  
+		   if(newGameInstance.isFull() || newGameInstance.whoWinGame() != 0 || newGameInstance.getAvailableMoves().isEmpty()  ) {
+			   getScore = score(newGameInstance, depth)  ;
+		   } else {
+			   getScore = newGameInstance.seeEffect(move.mX ,move.mY,botID,opBotID)   ;
+				if(newGameInstance.getAvailableMoves().size()>9) {
+					if(botID == BotParser.mBotId) getScore = getScore-15; 
+					else  getScore = getScore +  15;
+				}
+		   }
+		   if(depth ==1)
+			   getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
+		   if(depth == 1) {
+				//System.out.println(move.mX + " "+move.mY + " " + getScore );
 			}
-			
-		} else if (availabelMoves.size()>9 )  {
-			if(botID == BotParser.mBotId) return 200 - depth ;
-			if(botID== BotParser.oBotID) return  depth - 200 ;
-			
+		   
+		   if(botID == BotParser.mBotId) {
+			   int temp = getMax(returnScore, getScore) ;
+			   if(depth == 1 && returnScore !=temp) this._playerMove = move;
+			   returnScore = temp;
+		   } else {
+			   returnScore = getMin(returnScore, getScore) ;
+		   }
+		   if(Math.abs(returnScore) >=280 && Math.abs(returnScore) <=300 ) return returnScore ; 
 		}
-		
-		
-		if(depth ==  1) {
-			//System.out.println("scores "+scores.toString()) ;
-			//System.out.println("availabelMoves  "+availabelMoves.toString()) ;
-			
-		}
-		if(!scores.isEmpty()) {
-			if(botID == BotParser.mBotId) {
-				int index = getIndex(scores,true) ;
-				this._playerMove = (Move) availabelMoves.get( (int) moves.get(index)) ;
-				return (Integer) scores.get(index);
-				
-			} else {
-				int index = getIndex(scores,false) ;
-				return (Integer) scores.get(index);
-			}
-		} else {
-			System.err.println("why emtpy!!!");
-			this._playerMove = (Move) availabelMoves.get(0) ;
-			return 0;
-		}
-		
-	} 
+		return returnScore ;
+	}
+
 	public int score(Field game,int depth) {
 		if(game.whoWinGame() == BotParser.mBotId) return 300 - depth ;
 		if(game.whoWinGame()== BotParser.oBotID) return  depth - 300 ;

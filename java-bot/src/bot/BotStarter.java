@@ -37,16 +37,20 @@ public class BotStarter {
      * @return The column where the turn was made.
      */
 	public Move makeTurn(Field field) {
-		/*
-		Random r = new Random();
-		ArrayList<Move> moves = field.getAvailableMoves();
-		Move move = moves.get(r.nextInt(moves.size())); 
-		*/
-		MiniMaxAlgorith minimax = new MiniMaxAlgorith();
+		long start_time = System.currentTimeMillis();
+		int moveNumnber = field.getMoveNumber() ; 
+		int depth = 2;
+		if(moveNumnber<=9) depth = 3;
+		else if(moveNumnber <=20) depth =  7; 
+		else depth = 9; 
+		MiniMaxAlgorith minimax = new MiniMaxAlgorith(depth);
 		
 		Integer result = minimax.miniMax(field, 0, BotParser.mBotId,-10000,10000);
 		Move move = new Move() ;
 		move = minimax.getTurn() ;
+		long end_time = System.currentTimeMillis();
+		long difference = end_time-start_time; 
+		System.err.println("get time "+difference) ;
 		return move ;
 	}
 

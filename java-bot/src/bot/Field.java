@@ -164,6 +164,7 @@ public class Field {
 		
 	}
 	private boolean isMacroFilled(int colIndex,int rowIndex) {
+		if(whoWinGame() !=0) return false ; 
 		int firstCol = colIndex * 3; 
 		int firstRow = rowIndex *  3;  
 		for (int x = firstCol; x < firstCol+3; x++) {
@@ -321,7 +322,6 @@ public class Field {
 	}
 	
 	private int  getConditionMacroBoard(int mCol,int mRow) { 
-		 if(isMacroFilled(mCol, mRow) == true) return 0;
 		int firstCol = mCol * 3; 
 		int firstRow = mRow *  3;  
 		int horizon = 1 ; 
@@ -359,8 +359,8 @@ public class Field {
 			  for (int y = 0; y < ROWS/3; y++) {
 				   if(mMacroboard[x][y] == id) {
 					   if(vertical == 0) vertical += 5; 
-					   else  vertical += 10; 
-				  } else if(mMacroboard[x][y] != 0) {
+					   else if(vertical == 0)  vertical += 10; 
+				  } else if(mMacroboard[x][y] != 0 && mMacroboard[x][y] != -1) {
 					  if(vertical == 0) vertical -= 5; 
 					   else  vertical -= 10; 
 				  }
@@ -375,7 +375,7 @@ public class Field {
 				   if(mMacroboard[x][y] == id) {
 					   if(horizon == 0) horizon += 5; 
 					   else  horizon += 10; 
-				  } else if(mMacroboard[x][y] != 0) {
+				  } else if(mMacroboard[x][y] != 0 && mMacroboard[x][y] != -1) {
 					  if(horizon == 0) horizon -= 5; 
 					   else  horizon -= 10; 
 				  }
@@ -419,7 +419,9 @@ public class Field {
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
 		return effect;
 		
-		
+	} 
+	public int getMoveNumber() {
+		return mMoveNr ;
 	}
 	
 }
