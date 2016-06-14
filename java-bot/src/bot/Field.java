@@ -387,7 +387,7 @@ public class Field {
 	}
 	public int seeEffect(int mx ,int my,int botId,int opId) {
 		int effect = 0 ;
-		if(mMacroboard[mx/3][my/3]==botId)  effect =10;
+		if(mMacroboard[mx/3][my/3]==botId)  effect =20;
 		if(whoWinGame()==botId) effect =70; 
 		mBoard[mx][my] = opId;
 		

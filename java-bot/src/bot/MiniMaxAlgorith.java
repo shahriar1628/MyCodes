@@ -19,13 +19,21 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		else oponentBotID = BotParser.mBotId ; 
 		depth++;
         int returnScore = 0;
-        if(botID == BotParser.mBotId)  returnScore = -5000;
-        else returnScore = 5000;
+        int instantEffect = 0;
+        if(botID == BotParser.mBotId)  {
+        	returnScore = -5000;
+        	instantEffect = -200;
+        }
+        else {
+        	returnScore = 5000;
+        	instantEffect = 200;
+        	
+        }
 		List availabelMoves = game.getAvailableMoves() ; 
 		if(depth >this._depth) return huristicanAnalysis(game,botID); 
 		if(availabelMoves.size()>9 ) {
-			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) -10;  
-			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) +10;
+			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) +10;  
+			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) -10;
 		}
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
@@ -37,9 +45,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
 				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
-				if (depth == 1) {
-					 getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
-				} 
+				int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
 				if(newGameInstance.getAvailableMoves().size() > 9   ) {
 					if(getScore <=0 && botID == BotParser.mBotId) {
 						getScore = getScore - 100 ;
@@ -48,11 +54,20 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 						getScore = getScore + 100 ;
 					}
 				}
+				
+				if (depth == 1 && getScore >-288) {
+					getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
+				} 
 				if(depth == 1) {
 					//System.out.println(move.mX + " "+move.mY + " " + getScore );
 				}
 				
-					if(botID == BotParser.mBotId) {
+					if(botID == BotParser.mBotId) { 
+						if(returnScore <getScore) {
+							instantEffect = tempInstantEff;
+						} else if(returnScore == getScore && tempInstantEff > instantEffect && depth == 1 ) {
+							this._playerMove = move;
+						}
 						int temp = getMax(returnScore,getScore) ;
 						if(temp != returnScore && depth == 1) 
 							this._playerMove = move;
@@ -61,12 +76,15 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 						if(bita <=alpha) break;
 						}
 					if(botID == BotParser.oBotID) {
+						if(returnScore >getScore) {
+							instantEffect = tempInstantEff;
+						}
 						returnScore = getMin(returnScore,getScore);
 						bita = getMin(bita,returnScore);
 						if(bita <=alpha) break;
 						} 
 		}
-        return returnScore;
+        return returnScore + instantEffect;
 		     
 }
 			
@@ -90,7 +108,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 					else  getScore = getScore +  15;
 				}
 		   }
-		   if(depth ==1)
+		   if(depth ==1  && getScore >-288 )
 			   getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
 		   if(depth == 1) {
 				//System.out.println(move.mX + " "+move.mY + " " + getScore );
