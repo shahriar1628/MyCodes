@@ -171,6 +171,14 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		
 	}
 	
+	private int advanceHuristicAnalysis(Field game,int botID,int opID) {
+		int huristicValue = game.advanceHuristicAnalysis(botID,opID); 
+		if(huristicValue==0)  huristicValue = -1;
+		if(botID ==  BotParser.mBotId)  return huristicValue;
+		return huristicValue * (-1) ;
+		
+	}
+	
 	
 
 }

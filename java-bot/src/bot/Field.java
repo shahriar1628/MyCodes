@@ -385,6 +385,138 @@ public class Field {
 		}
 		return  horizon_sum + vertical_sum;
 	}
+	private boolean canwin(int botid,int mcol,int mrow) {
+	
+		int boardCol = mcol*3 ; 
+		int boardRow = mrow * 3; 
+		
+		//horizon
+		for(int y = boardRow ; y<boardRow+3 ; y++ ) {
+			boolean win = true;
+			for(int x = boardCol ; x<boardCol+3 ; x++ ) {
+				if(mBoard[x][y] !=0 && mBoard[x][y] !=botid  ) {
+					win = false; 
+					break;
+				}
+			}
+			if(win) return win; 
+		}
+		
+		//vertical
+		
+		for(int y = boardCol ; y<boardCol+3 ; y++ ) {
+			boolean win = true;
+			for(int x = boardRow ; x<boardRow+3 ; x++ ) {
+				if(mBoard[y][x] !=0 && mBoard[y][x] !=botid  ) {
+					win = false; 
+					break;
+				}
+			}
+			if(win) return win; 
+		}
+		if(mBoard[boardCol+1][boardRow+1] != 0 && mBoard[boardCol+1][boardRow+1]!= botid ) return false;  
+		
+		if(mBoard[boardCol][boardRow] == 0 || mBoard[boardCol][boardRow]== botid ) {
+			if(mBoard[boardCol+2][boardRow+2] == 0 || mBoard[boardCol+2][boardRow+2]== botid ) return true;
+		}
+		
+		if(mBoard[boardCol+2][boardRow] == 0 || mBoard[boardCol+2][boardRow]== botid ) {
+			if(mBoard[boardCol][boardRow+2] == 0 || mBoard[boardCol][boardRow+2]== botid ) return true;
+		}
+		return false;
+		
+	}
+	
+	private int measurement(int botID,int optid) {
+		
+        int sum = 0;
+        int leftDiag = 0;
+		for (int x = 0; x < COLS/3; x++) {
+	          int vertical =0;
+			  for (int y = 0; y < ROWS/3; y++) { 
+				if(mMacroboard[x][y] == optid) {
+					vertical = 0;
+					break;
+				}
+				if(mMacroboard[x][y] == botID) vertical = vertical + 2;
+				if(mMacroboard[x][y] == 0 || mMacroboard[x][y] == -1 ) {
+					if(canwin(botID, x, y) ==  false) {
+						vertical = 0; 
+						break;
+					}
+				}
+				
+			  } 
+			  if(vertical !=0) vertical++ ;
+			  sum += vertical;
+		}
+		for (int x = 0; x < ROWS/3; x++) {
+	          int horizon =0;
+			  for (int y = 0; y < COLS/3; y++) {
+				if(mMacroboard[y][x] == optid) {
+					horizon = 0; 
+					break;
+				}
+				if(mMacroboard[y][x] == botID) horizon = horizon + 2;
+				if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+					if(canwin(botID, y, x) ==  false) {
+						horizon = 0; 
+						break;
+					}
+				}
+				
+			  } 
+			  if(horizon !=0) horizon++ ;
+			  sum += horizon;
+		}
+		int lDiag =0;
+        int rDiag =0;
+		for (int x = 0; x < ROWS/3; x++) {
+			  for (int y = 0; y < COLS/3; y++) {
+				  if(x == y || (x==0 && y==2) || (y==2 && x==0)) {
+					  if(x==y) {
+						  if(mMacroboard[y][x] == optid) {
+							  lDiag=0;
+							  if(x==1) rDiag = -1;
+						  }
+							if(mMacroboard[y][x] == botID) {
+								lDiag = lDiag + 2;
+								if(x==1) rDiag = rDiag + 2;
+							}
+							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+								if(canwin(botID, y, x) ==  false) {
+									if(x==1) rDiag = -1;
+									lDiag = 0; 
+								}
+					       }
+					 } else if(rDiag !=-1) {
+						 if(mMacroboard[y][x] == optid) {
+							     rDiag = 0; 
+							}
+							if(mMacroboard[y][x] == botID) rDiag = rDiag + 2;
+							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+								if(canwin(botID, y, x) ==  false) {
+									rDiag = 0; 
+								}
+							}
+						 
+					   }
+				  } else {
+					  continue;
+				  }
+				
+				}
+				
+			  } 
+			  if(lDiag !=0) lDiag++ ;
+			  if(rDiag !=0) rDiag++ ;
+			  sum += lDiag + rDiag;
+			  return sum ;
+		}
+		
+	public int advanceHuristicAnalysis(int botID,int opID) {
+		return measurement(botID,opID) - measurement(opID,botID)  ;
+	}
 	public int seeEffect(int mx ,int my,int botId,int opId) {
 		int effect = 0 ;
 		if(mMacroboard[mx/3][my/3]==botId)  effect =20;
