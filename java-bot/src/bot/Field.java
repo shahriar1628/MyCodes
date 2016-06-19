@@ -18,7 +18,10 @@
 package bot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import com.sun.javafx.collections.MappingChange.Map;
 
 /**
  * Field class
@@ -385,45 +388,84 @@ public class Field {
 		}
 		return  horizon_sum + vertical_sum;
 	}
-	private boolean canwin(int botid,int mcol,int mrow) {
+	private HashMap canwin(int botid,int mcol,int mrow) {
 	
 		int boardCol = mcol*3 ; 
 		int boardRow = mrow * 3; 
+		int point = 0 ; 
+		int totalPoint = 0;
+		boolean winPos = false;
+		HashMap  map =  new HashMap() ;
 		
 		//horizon
 		for(int y = boardRow ; y<boardRow+3 ; y++ ) {
 			boolean win = true;
+			point = 0;
 			for(int x = boardCol ; x<boardCol+3 ; x++ ) {
 				if(mBoard[x][y] !=0 && mBoard[x][y] !=botid  ) {
 					win = false; 
+					point = 0;
 					break;
 				}
+				if(mBoard[x][y] == botid) {
+					point++;
+				}
 			}
-			if(win) return win; 
+			if(win ) {
+				winPos = true ;
+				if(point >1) totalPoint += point ;
+			}
 		}
 		
 		//vertical
 		
 		for(int y = boardCol ; y<boardCol+3 ; y++ ) {
 			boolean win = true;
+			point = 0;
 			for(int x = boardRow ; x<boardRow+3 ; x++ ) {
 				if(mBoard[y][x] !=0 && mBoard[y][x] !=botid  ) {
 					win = false; 
+					point = 0;
 					break;
 				}
+				if(mBoard[x][y] == botid) {
+					point++;
+				}
 			}
-			if(win) return win; 
+			if(win) {
+				winPos = true ;
+				if(point >1) totalPoint += point ;
+			}
 		}
-		if(mBoard[boardCol+1][boardRow+1] != 0 && mBoard[boardCol+1][boardRow+1]!= botid ) return false;  
+		point = 0;
+		if(mBoard[boardCol+1][boardRow+1] != 0 && mBoard[boardCol+1][boardRow+1]!= botid ) {
+			
+		} else {
+			if(mBoard[boardCol][boardRow] == 0 || mBoard[boardCol][boardRow]== botid ) {
+				if(mBoard[boardCol+2][boardRow+2] == 0 || mBoard[boardCol+2][boardRow+2]== botid ) {
+					winPos = true ;
+					if(mBoard[boardCol][boardRow] == botid)  point++; 
+					if(mBoard[boardCol+1][boardRow+1] == botid)  point++; 
+					if(mBoard[boardCol+2][boardRow+2] == botid)  point++; 
+					if(point >1) totalPoint += point ;
+				}
+			}
+			point = 0;
+			if(mBoard[boardCol+2][boardRow] == 0 || mBoard[boardCol+2][boardRow]== botid ) {
+				if(mBoard[boardCol][boardRow+2] == 0 || mBoard[boardCol][boardRow+2]== botid ) {
+					winPos = true ;
+					if(mBoard[boardCol][boardRow+2] == botid)  point++; 
+					if(mBoard[boardCol+1][boardRow+1] == botid)  point++; 
+					if(mBoard[boardCol+2][boardRow] == botid)  point++; 
+					if(point >1) totalPoint += point ;
+				}
+			}
+		}
 		
-		if(mBoard[boardCol][boardRow] == 0 || mBoard[boardCol][boardRow]== botid ) {
-			if(mBoard[boardCol+2][boardRow+2] == 0 || mBoard[boardCol+2][boardRow+2]== botid ) return true;
-		}
 		
-		if(mBoard[boardCol+2][boardRow] == 0 || mBoard[boardCol+2][boardRow]== botid ) {
-			if(mBoard[boardCol][boardRow+2] == 0 || mBoard[boardCol][boardRow+2]== botid ) return true;
-		}
-		return false;
+		map.put("canWin", winPos);
+		map.put("point", totalPoint);
+		return map;
 		
 	}
 	
@@ -438,12 +480,19 @@ public class Field {
 					vertical = 0;
 					break;
 				}
-				if(mMacroboard[x][y] == botID) vertical = vertical + 2;
+				if(mMacroboard[x][y] == botID) { 
+					
+					vertical =  (vertical == 0) ?  5 :  vertical + vertical;
+				}
 				if(mMacroboard[x][y] == 0 || mMacroboard[x][y] == -1 ) {
-					if(canwin(botID, x, y) ==  false) {
+					HashMap map = canwin(botID, x, y) ;
+					if(  ((boolean) map.get("canWin")) ==  false) {
 						vertical = 0; 
 						break;
+					} else {
+						vertical =  (vertical == 0) ?  (int) map.get("point") :  vertical + (int) map.get("point");
 					}
+						
 				}
 				
 			  } 
@@ -457,11 +506,16 @@ public class Field {
 					horizon = 0; 
 					break;
 				}
-				if(mMacroboard[y][x] == botID) horizon = horizon + 2;
+				if(mMacroboard[y][x] == botID) {
+					horizon =  (horizon == 0) ?  5 :  horizon + horizon;
+				}
 				if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-					if(canwin(botID, y, x) ==  false) {
+					HashMap map = canwin(botID, x, y) ;
+					if(((boolean) map.get("canWin")) ==  false) {
 						horizon = 0; 
 						break;
+					} else {
+						horizon =  (horizon == 0) ?  (int) map.get("point") :  horizon + (int) map.get("point");
 					}
 				}
 				
@@ -480,23 +534,31 @@ public class Field {
 							  if(x==1) rDiag = -1;
 						  }
 							if(mMacroboard[y][x] == botID) {
-								lDiag = lDiag + 2;
-								if(x==1) rDiag = rDiag + 2;
+								lDiag = (lDiag == 0) ? 5 : lDiag + lDiag;
+								if(x==1) rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
 							}
 							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-								if(canwin(botID, y, x) ==  false) {
+								HashMap map = canwin(botID, x, y) ;
+								if(((boolean) map.get("canWin")) ==  false) {
 									if(x==1) rDiag = -1;
 									lDiag = 0; 
+								}else {
+									lDiag =  (lDiag == 0) ?  (int) map.get("point") :  lDiag + (int) map.get("point");
 								}
 					       }
 					 } else if(rDiag !=-1) {
 						 if(mMacroboard[y][x] == optid) {
 							     rDiag = 0; 
 							}
-							if(mMacroboard[y][x] == botID) rDiag = rDiag + 2;
+							if(mMacroboard[y][x] == botID) {
+								 rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
+							}
 							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-								if(canwin(botID, y, x) ==  false) {
+								HashMap map = canwin(botID, x, y) ;
+								if(((boolean) map.get("canWin")) ==  false) {
 									rDiag = 0; 
+								}else {
+									rDiag =  (rDiag == 0) ?  (int) map.get("point") :  rDiag + (int) map.get("point");
 								}
 							}
 						 
@@ -521,15 +583,85 @@ public class Field {
 		int effect = 0 ;
 		if(mMacroboard[mx/3][my/3]==botId)  effect =20;
 		if(whoWinGame()==botId) effect =70; 
+		if(effect == 0) {
+				effect = sameRowColumn( mx, my, botId) ; 
+				if(effect != 0) effect++;
+				if(mx% 3 ==1 && my% 3 == 1 && effect != 0 ) effect  = effect - 1 ;
+				
+			
+		}
+		mBoard[mx][my] = opId;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(mMacroboard[mx/3][my/3]==opId)  effect =10;
+		if(whoWinGame()==opId) effect =50;  
+        if(effect == 0) {
+        	effect = sameRowColumn( mx, my, opId) ; 
+        	if(mx% 3 ==1 && my% 3 == 1 && effect != 0 ) effect  = effect - 1 ;
+		} 
+       
+		
+		//fall back 
+        mBoard[mx][my] = botId;
+		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(botId == BotParser.oBotID) return effect *(-1);
+		return effect;
+		
+	}
+	 private int  sameRowColumn(int mx,int my,int botId) {
+		 
+		 
+		 // not checinh diagonal 
+				int mcol = mx/3; 
+				int mrow = my/3;
+				int boardCol = mcol*3 ; 
+				int boardRow = mrow * 3; 
+				int point = 0;
+				//horizon
+				for(int y = boardRow ; y<boardRow+3 ; y++ ) {
+					if(my !=y) continue;
+					boolean win = true;
+					for(int x = boardCol ; x<boardCol+3 ; x++ ) {
+						if(mBoard[x][y] !=0 && mBoard[x][y] !=botId  ) {
+							win = false; 
+							break;
+						} 
+						if(mBoard[x][y] == botId) point = point + 2 ; 
+					}
+					if(!win) point = 0 ;
+				}
+				
+				//vertical
+				
+				for(int y = boardCol ; y<boardCol+3 ; y++ ) {
+					if(mx !=y) continue;
+					boolean win = true;
+					for(int x = boardRow ; x<boardRow+3 ; x++ ) {
+						if(mBoard[y][x] !=0 && mBoard[y][x] !=botId  ) {
+							win = false; 
+							break;
+						}
+						if(mBoard[x][y] == botId) point = point + 2 ;
+					}
+					if(!win) point = 0 ;
+				}
+				
+				return point ; 
+     }
+	public int seeEffect_huristic(int mx ,int my,int botId,int opId) {
+		int effect = 0 ;
+		int effectHur = 0 ; int  effectHurOp = 0;
+		if(mMacroboard[mx/3][my/3]==botId)  effectHur =measurement(botId,opId);
+		if(whoWinGame()==botId) effect =70; 
 		mBoard[mx][my] = opId;
 		
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
-		if(mMacroboard[mx/3][my/3]==opId)  effect =10;
+		if(mMacroboard[mx/3][my/3]==opId)  effectHurOp = measurement(opId,botId);
 		if(whoWinGame()==opId) effect =50; 
 		
 		//fall back 
         mBoard[mx][my] = botId;
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
+		if(effect == 0)  effect = effectHur +  effectHurOp ;
 		if(botId == BotParser.oBotID) return effect *(-1);
 		return effect;
 		
