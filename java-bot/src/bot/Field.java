@@ -303,7 +303,7 @@ public class Field {
 			if(checkHoriznotanl == 1 || checkVertical == 1) return 1; 
 		} 
 		if(checkLeftBottomDiagonal == 8 || checkRightBottomDiagonal == 8) return 2; 
-		if(checkLeftBottomDiagonal == 1 || checkLeftBottomDiagonal == 1) return 1; 
+		if(checkLeftBottomDiagonal == 1 || checkRightBottomDiagonal == 1) return 1; 
 		return 0 ; 
 		
 	} 
@@ -428,7 +428,7 @@ public class Field {
 					point = 0;
 					break;
 				}
-				if(mBoard[x][y] == botid) {
+				if(mBoard[y][x] == botid) {
 					point++;
 				}
 			}

@@ -37,10 +37,12 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 			 }
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
-		if(availabelMoves.size()>9 ) {
+		if(availabelMoves.size()>9 && depth !=1  ) {
 			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) +10;  
 			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) -10;
 		}
+		
+		if(availabelMoves.size()>9 && depth ==1  ) this._depth = 2;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
 			   Field newGameInstance = null;
