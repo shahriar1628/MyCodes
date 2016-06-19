@@ -30,11 +30,8 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
         	
         }
 		List availabelMoves = game.getAvailableMoves() ; 
-		if(depth >this._depth && this._depth == 3 ) return huristicanAnalysis(game,botID);  
-		else if(depth >this._depth) {
-			 if(this._playerMove.mX == 7 && this._playerMove.mY == 3 ) {
-				// System.out.println( instantEffect);
-			 }
+		//if(depth >this._depth && this._depth == 3 ) return huristicanAnalysis(game,botID);  
+		 if(depth >this._depth) {
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
 		if(availabelMoves.size()>9 && depth !=1  ) {
