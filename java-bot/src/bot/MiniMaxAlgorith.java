@@ -47,7 +47,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
 				if(depth == 1) {
-					//System.out.println(move.mX + " "+move.mY );
+				//	int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
 				}
 				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
 				int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
@@ -64,13 +64,14 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 					getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
 				} 
 				if(depth == 1) {
-					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff);
+					System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
 				}
 				
 					if(botID == BotParser.mBotId) { 
 						if(returnScore <getScore) {
 							instantEffect = tempInstantEff;
 						} else if(returnScore == getScore && tempInstantEff > instantEffect && depth == 1 ) {
+							instantEffect = tempInstantEff;
 							this._playerMove = move;
 						}
 						int temp = getMax(returnScore,getScore) ;
@@ -120,7 +121,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		   if(depth ==1  && getScore >-288 )
 			   getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
 		   if(depth == 1) {
-				//System.out.println(move.mX + " "+move.mY + " " + getScore );
+				System.out.println(move.mX + " "+move.mY + " " + getScore );
 			}
 		   
 		   if(botID == BotParser.mBotId) {

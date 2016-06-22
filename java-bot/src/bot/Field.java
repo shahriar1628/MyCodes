@@ -388,32 +388,37 @@ public class Field {
 		}
 		return  horizon_sum + vertical_sum;
 	}
+	private int  min(int a,int b) {
+		if(a <b) return a; 
+		return b;
+	}
 	private HashMap canwin(int botid,int mcol,int mrow) {
 	
 		int boardCol = mcol*3 ; 
 		int boardRow = mrow * 3; 
 		int point = 0 ; 
-		int totalPoint = 0;
+		int tempPoint = 3;
+		int totalPoint = 10;
 		boolean winPos = false;
 		HashMap  map =  new HashMap() ;
 		
 		//horizon
 		for(int y = boardRow ; y<boardRow+3 ; y++ ) {
 			boolean win = true;
-			point = 0;
+			point = 3;
 			for(int x = boardCol ; x<boardCol+3 ; x++ ) {
 				if(mBoard[x][y] !=0 && mBoard[x][y] !=botid  ) {
 					win = false; 
-					point = 0;
+					point = 3;
 					break;
 				}
 				if(mBoard[x][y] == botid) {
-					point++;
+				   point--;
 				}
 			}
 			if(win ) {
 				winPos = true ;
-				if(point >1) totalPoint += point ;
+				totalPoint = min(totalPoint,point);
 			}
 		}
 		
@@ -421,50 +426,50 @@ public class Field {
 		
 		for(int y = boardCol ; y<boardCol+3 ; y++ ) {
 			boolean win = true;
-			point = 0;
+			point = 3;
 			for(int x = boardRow ; x<boardRow+3 ; x++ ) {
 				if(mBoard[y][x] !=0 && mBoard[y][x] !=botid  ) {
 					win = false; 
-					point = 0;
+					point = 3;
 					break;
 				}
 				if(mBoard[y][x] == botid) {
-					point++;
+					point--;
 				}
 			}
 			if(win) {
 				winPos = true ;
-				if(point >1) totalPoint += point ;
+				totalPoint = min(totalPoint,point);
 			}
 		}
-		point = 0;
+		point = 3;
 		if(mBoard[boardCol+1][boardRow+1] != 0 && mBoard[boardCol+1][boardRow+1]!= botid ) {
 			
 		} else {
 			if(mBoard[boardCol][boardRow] == 0 || mBoard[boardCol][boardRow]== botid ) {
 				if(mBoard[boardCol+2][boardRow+2] == 0 || mBoard[boardCol+2][boardRow+2]== botid ) {
 					winPos = true ;
-					if(mBoard[boardCol][boardRow] == botid)  point++; 
-					if(mBoard[boardCol+1][boardRow+1] == botid)  point++; 
-					if(mBoard[boardCol+2][boardRow+2] == botid)  point++; 
-					if(point >1) totalPoint += point ;
+					if(mBoard[boardCol][boardRow] == botid)  point--; 
+					if(mBoard[boardCol+1][boardRow+1] == botid) point--;
+					if(mBoard[boardCol+2][boardRow+2] == botid)  point--; 
+					totalPoint = min(totalPoint,point);
 				}
 			}
-			point = 0;
+			point = 3;
 			if(mBoard[boardCol+2][boardRow] == 0 || mBoard[boardCol+2][boardRow]== botid ) {
 				if(mBoard[boardCol][boardRow+2] == 0 || mBoard[boardCol][boardRow+2]== botid ) {
 					winPos = true ;
-					if(mBoard[boardCol][boardRow+2] == botid)  point++; 
-					if(mBoard[boardCol+1][boardRow+1] == botid)  point++; 
-					if(mBoard[boardCol+2][boardRow] == botid)  point++; 
-					if(point >1) totalPoint += point ;
+					if(mBoard[boardCol][boardRow+2] == botid)  point--;
+					if(mBoard[boardCol+1][boardRow+1] == botid)  point--;
+					if(mBoard[boardCol+2][boardRow] == botid)  point--; 
+					totalPoint = min(totalPoint,point);
 				}
 			}
 		}
 		
 		
 		map.put("canWin", winPos);
-		map.put("point", totalPoint);
+		map.put("point", totalPoint*(-1));
 		return map;
 		
 	}
@@ -629,8 +634,10 @@ public class Field {
 					}
 					if(!win) point = 0 ;
 				}
-				
+				if(point == 2) point = 0; 
 				//vertical
+				int point2 = 0;
+				
 				
 				for(int y = boardCol ; y<boardCol+3 ; y++ ) {
 					if(mx !=y) continue;
@@ -640,12 +647,12 @@ public class Field {
 							win = false; 
 							break;
 						}
-						if(mBoard[x][y] == botId) point = point + 2 ;
+						if(mBoard[y][x] == botId) point2 = point2 + 2 ;
 					}
-					if(!win) point = 0 ;
+					if(!win) point2 = 0 ;
 				}
-				
-				return point ; 
+				if(point2 == 2) point2 = 0; 
+				return point + point2 ; 
      }
 	public int seeEffect_huristic(int mx ,int my,int botId,int opId) {
 		int effect = 0 ;
