@@ -35,8 +35,8 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
 		if(availabelMoves.size()>9 && depth !=1  ) {
-			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) +10;  
-			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) -10;
+			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;  
+			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
 		}
 		
 		if(availabelMoves.size()>9 && depth ==1  ) this._depth = 2;
@@ -46,11 +46,14 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 			  newGameInstance = new Field(game.getMboard(),game.getMacroboard()) ;
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
-				if(depth == 1) {
-				//	int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
+				if(depth == 1 && move.mX ==  4 && move.mY == 4  ) {
+					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + " " + instantEffect);
 				}
 				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
 				int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
+				if(depth == 1) {
+					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
+				}
 				if(newGameInstance.getAvailableMoves().size() > 9   ) {
 					if(getScore <=0 && botID == BotParser.mBotId) {
 						getScore = getScore - 100 ;
@@ -64,7 +67,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 					getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
 				} 
 				if(depth == 1) {
-					System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
+					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
 				}
 				
 					if(botID == BotParser.mBotId) { 
@@ -107,8 +110,8 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		   newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID);  
 		   if(newGameInstance.isFull() || newGameInstance.whoWinGame() != 0 || newGameInstance.getAvailableMoves().isEmpty()  ) {
 			   getScore = score(newGameInstance, depth)  ;
-		   } else {
-			       getScore = newGameInstance.seeEffect_huristic(move.mX ,move.mY,botID,opBotID)   ;
+		   } else { 
+			       getScore = advanceHuristicAnalysis(newGameInstance,botID, opBotID) ;
 			        if(newGameInstance.getAvailableMoves().size() > 9   ) {
 						if(getScore <=0 && botID == BotParser.mBotId) {
 							getScore = getScore - 100 ;
@@ -121,7 +124,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		   if(depth ==1  && getScore >-288 )
 			   getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
 		   if(depth == 1) {
-				System.out.println(move.mX + " "+move.mY + " " + getScore );
+				//System.out.println(move.mX + " "+move.mY + " " + getScore );
 			}
 		   
 		   if(botID == BotParser.mBotId) {

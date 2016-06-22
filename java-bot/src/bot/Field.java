@@ -469,7 +469,7 @@ public class Field {
 		
 		
 		map.put("canWin", winPos);
-		map.put("point", totalPoint*(-1));
+		map.put("point", 3-totalPoint);
 		return map;
 		
 	}
@@ -501,9 +501,10 @@ public class Field {
 				}
 				
 			  } 
-			  if(vertical !=0) vertical++ ;
-			  sum += vertical;
+			  sum +=vertical ;
+			  
 		}
+
 		for (int x = 0; x < ROWS/3; x++) {
 	          int horizon =0;
 			  for (int y = 0; y < COLS/3; y++) {
@@ -515,7 +516,7 @@ public class Field {
 					horizon =  (horizon == 0) ?  5 :  horizon + horizon;
 				}
 				if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-					HashMap map = canwin(botID, x, y) ;
+					HashMap map = canwin(botID, y, x) ;
 					if(((boolean) map.get("canWin")) ==  false) {
 						horizon = 0; 
 						break;
@@ -525,17 +526,19 @@ public class Field {
 				}
 				
 			  } 
-			  if(horizon !=0) horizon++ ;
+			
 			  sum += horizon;
+			  
 		}
 		int lDiag =0;
+		int u;
         int rDiag =0;
 		for (int x = 0; x < ROWS/3; x++) {
 			  for (int y = 0; y < COLS/3; y++) {
 				  if(x == y || (x==0 && y==2) || (y==2 && x==0)) {
-					  if(x==y) {
+					  if(x==y && lDiag !=-1 ) {
 						  if(mMacroboard[y][x] == optid) {
-							  lDiag=0;
+							  lDiag=-1;
 							  if(x==1) rDiag = -1;
 						  }
 							if(mMacroboard[y][x] == botID) {
@@ -543,25 +546,25 @@ public class Field {
 								if(x==1) rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
 							}
 							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-								HashMap map = canwin(botID, x, y) ;
+								HashMap map = canwin(botID, y, x) ;
 								if(((boolean) map.get("canWin")) ==  false) {
 									if(x==1) rDiag = -1;
-									lDiag = 0; 
+									lDiag = -1; 
 								}else {
 									lDiag =  (lDiag == 0) ?  (int) map.get("point") :  lDiag + (int) map.get("point");
 								}
 					       }
-					 } else if(rDiag !=-1) {
+					 } else if(((x==0 && y==2) || (y==2 && x==0) || (y==1 && x==1) ) && rDiag !=-1) {
 						 if(mMacroboard[y][x] == optid) {
-							     rDiag = 0; 
+							     rDiag = -1; 
 							}
 							if(mMacroboard[y][x] == botID) {
 								 rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
 							}
 							if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
-								HashMap map = canwin(botID, x, y) ;
+								HashMap map = canwin(botID, y, x) ;
 								if(((boolean) map.get("canWin")) ==  false) {
-									rDiag = 0; 
+									rDiag = -1; 
 								}else {
 									rDiag =  (rDiag == 0) ?  (int) map.get("point") :  rDiag + (int) map.get("point");
 								}
@@ -574,10 +577,10 @@ public class Field {
 				
 				}
 				
-			  } 
-			  if(lDiag !=0) lDiag++ ;
-			  if(rDiag !=0) rDiag++ ;
-			  sum += lDiag + rDiag;
+			  }
+		     
+			  if(lDiag >0) { sum += lDiag; }
+			  if(rDiag >0) { sum += rDiag; }
 			  return sum ;
 		}
 		
