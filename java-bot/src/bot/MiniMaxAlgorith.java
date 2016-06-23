@@ -29,31 +29,26 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
         	instantEffect = 200;
         	
         }
+        int tempInstantEff = instantEffect;
 		List availabelMoves = game.getAvailableMoves() ; 
 		//if(depth >this._depth && this._depth == 3 ) return huristicanAnalysis(game,botID);  
 		 if(depth >this._depth) {
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
-		if(availabelMoves.size()>9 && depth !=1  ) {
-			if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;  
+		if(availabelMoves.size()>12 && depth !=1  ) {
+		if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;  
 			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
 		}
 		
-		if(availabelMoves.size() <=40 && depth ==1  ) this._depth = 4;
+		if(availabelMoves.size() <=40 && depth ==1  && availabelMoves.size() >12  ) this._depth = 4;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
 			   Field newGameInstance = null;
 			  newGameInstance = new Field(game.getMboard(),game.getMacroboard()) ;
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
-				if(depth == 1 && move.mX ==  4 && move.mY == 4  ) {
-					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + " " + instantEffect);
-				}
 				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
-				int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
-				if(depth == 1) {
-					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
-				}
+				//int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
 				if(newGameInstance.getAvailableMoves().size() > 9   ) {
 					if(getScore <=0 && botID == BotParser.mBotId) {
 						getScore = getScore - 100 ;
@@ -62,23 +57,19 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 						getScore = getScore + 100 ;
 					}
 				}
-				
-				if (depth == 1 && getScore >-288) {
-					getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
-				} 
-				if(depth == 1) {
-					//System.out.println(move.mX + " "+move.mY + " " + getScore + " "  + tempInstantEff + " " + instantEffect);
+				if (depth == 1) {
+					//System.out.println(move.mX + " " + move.mY + " " + getScore);
 				}
-				
-					if(botID == BotParser.mBotId) { 
+					if(botID == BotParser.mBotId) {
+						/*
 						if(returnScore <getScore) {
 							instantEffect = tempInstantEff;
 						} else if(returnScore == getScore && tempInstantEff > instantEffect && depth == 1 ) {
 							instantEffect = tempInstantEff;
-							this._playerMove = move;
-						}
+							//this._playerMove = move;
+						} */
 						int temp = getMax(returnScore,getScore) ;
-						if(temp != returnScore && depth == 1) 
+						if(temp > returnScore && depth == 1) 
 							this._playerMove = move;
 						returnScore = temp;
 						alpha = getMax(alpha,returnScore);

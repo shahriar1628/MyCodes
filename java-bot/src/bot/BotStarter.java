@@ -40,9 +40,9 @@ public class BotStarter {
 		long start_time = System.currentTimeMillis();
 		int moveNumnber = field.getMoveNumber() ; 
 		int depth = 2;
-		if(moveNumnber<=9) depth = 3;
-		else if(moveNumnber <=40) depth =  7; 
-		else depth = 9; 
+		if(moveNumnber<=9) depth = 2;
+		else if(moveNumnber <=40) depth =  6; 
+		else depth = 10; 
 		MiniMaxAlgorith minimax = new MiniMaxAlgorith(depth);
 		
 		Integer result = minimax.miniMax(field, 0, BotParser.mBotId,-10000,10000);
