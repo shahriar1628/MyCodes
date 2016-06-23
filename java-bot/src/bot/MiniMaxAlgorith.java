@@ -39,7 +39,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
 		}
 		
-		if(availabelMoves.size()>9 && depth ==1  ) this._depth = 2;
+		if(availabelMoves.size() <=40 && depth ==1  ) this._depth = 4;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
 			   Field newGameInstance = null;
