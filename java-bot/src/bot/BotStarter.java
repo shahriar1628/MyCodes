@@ -39,13 +39,14 @@ public class BotStarter {
 	public Move makeTurn(Field field) {
 		long start_time = System.currentTimeMillis();
 		int moveNumnber = field.getMoveNumber() ; 
+		if(moveNumnber == 1) return new Move(4,4);
 		int depth = 2;
 		if(moveNumnber<=9) depth = 2;
 		else if(moveNumnber <=40) depth =  6; 
 		else depth = 10; 
 		MiniMaxAlgorith minimax = new MiniMaxAlgorith(depth);
 		
-		Integer result = minimax.miniMax(field, 0, BotParser.mBotId,-10000,10000);
+		Integer result = minimax.miniMax(field, 0, BotParser.mBotId,-10000,10000,0);
 		Move move = new Move() ;
 		move = minimax.getTurn() ;
 		long end_time = System.currentTimeMillis();
@@ -59,4 +60,5 @@ public class BotStarter {
 		BotParser parser = new BotParser(new BotStarter());
 		parser.run();
 	}
+	
 }

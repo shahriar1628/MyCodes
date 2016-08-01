@@ -1,8 +1,12 @@
 package bot;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+
 
 public class MiniMaxAlgorith { 
 	private Move _playerMove; 
@@ -12,7 +16,7 @@ public class MiniMaxAlgorith {
 		_depth = depth; 
 	}
 	
-public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
+public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byForceStopCondition) {
 		if(game.isFull() || game.whoWinGame() != 0 || game.getAvailableMoves().isEmpty()  ) return score(game,depth) ; 
 		int oponentBotID = 0;
 		if(botID == BotParser.mBotId) oponentBotID = BotParser.oBotID ; 
@@ -31,23 +35,33 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
         }
         int tempInstantEff = instantEffect;
 		List availabelMoves = game.getAvailableMoves() ; 
-		//if(depth >this._depth && this._depth == 3 ) return huristicanAnalysis(game,botID);  
-		 if(depth >this._depth) {
+		 if(depth > _depth  || byForceStopCondition == 2  ) {
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
-		if(availabelMoves.size()>12 && depth !=1  ) {
-		if(botID == BotParser.mBotId) return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;  
-			return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
+		 
+		if(availabelMoves.size()>12 && depth !=1 && byForceStopCondition == 0  ) {
+			if(availabelMoves.size()<=40) {
+				if(botID == BotParser.mBotId)
+					byForceStopCondition = 1;
+				if(botID == BotParser.oBotID)
+					byForceStopCondition = 2;
+			}else {
+				return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
+			}
+			
 		}
 		
-		if(availabelMoves.size() <=40 && depth ==1  && availabelMoves.size() >12  ) this._depth = 4;
+		
+		if(availabelMoves.size() <=40 && depth ==1  && availabelMoves.size() >12  && byForceStopCondition == 0  ) this._depth = 4;
+		Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
+		if(byForceStopCondition == 1) byForceStopCondition = 2;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
 			   Field newGameInstance = null;
 			  newGameInstance = new Field(game.getMboard(),game.getMacroboard()) ;
 				newGameInstance.updateTemporaryField(move.getX(),move.getY(), botID); 
 				int getScore  = 0;
-				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita)  ;
+				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita,byForceStopCondition)  ;
 				//int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
 				if(newGameInstance.getAvailableMoves().size() > 9   ) {
 					if(getScore <=0 && botID == BotParser.mBotId) {
@@ -183,6 +197,27 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita) {
 		
 	}
 	
+	public class CustomComparator implements Comparator<Move> {
+	    
+		Field _initGame ; 
+		int _botId ; 
+		int _optId; 
+	    public CustomComparator(Field game,int botId,int optId) {
+	    	_initGame =  game ; 
+	    	_botId = botId ;
+	    	_optId  = optId ; 
+		}
+	    public int compare(Move o1, Move o2) {
+	    	Field newGameInstance = new Field(_initGame.getMboard(),_initGame.getMacroboard()) ;
+			   newGameInstance.updateTemporaryField(o1.getX(),o1.getY(), _botId);
+			   int  effect1 = newGameInstance.seeEffect(o1.getX(),o1.getY(), _botId, _optId) ;
+			   
+			   newGameInstance = new Field(_initGame.getMboard(),_initGame.getMacroboard()) ;
+			   newGameInstance.updateTemporaryField(o2.getX(),o2.getY(), _botId);
+			   int  effect2 = newGameInstance.seeEffect(o2.getX(),o2.getY(), _botId, _optId) ;
+			   return effect1 - effect2 ;
+	    }
+	}
 	
 
 }
