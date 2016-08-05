@@ -624,7 +624,7 @@ public class Field {
 				int point = 0;
 				//horizon
 				for(int y = boardRow ; y<boardRow+3 ; y++ ) {
-					if(my !=y) continue;
+					if(my !=y || y%3==1) continue;
 					boolean win = true;
 					for(int x = boardCol ; x<boardCol+3 ; x++ ) {
 						if(mBoard[x][y] !=0 && mBoard[x][y] !=botId  ) {
@@ -641,7 +641,7 @@ public class Field {
 				
 				
 				for(int y = boardCol ; y<boardCol+3 ; y++ ) {
-					if(mx !=y) continue;
+					if(mx !=y || y%3==1) continue;
 					boolean win = true;
 					for(int x = boardRow ; x<boardRow+3 ; x++ ) {
 						if(mBoard[y][x] !=0 && mBoard[y][x] !=botId  ) {

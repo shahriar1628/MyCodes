@@ -53,7 +53,15 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 		
 		
 		if(availabelMoves.size() <=40 && depth ==1  && availabelMoves.size() >12  && byForceStopCondition == 0  ) this._depth = 4;
+		for(int index =0; index<availabelMoves.size();index++) {
+			Move move = (Move) availabelMoves.get(index) ;
+			System.err.println("move "+ move.getX() + " " + move.getY());
+		}
 		Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
+		for(int index =0; index<availabelMoves.size();index++) {
+			Move move = (Move) availabelMoves.get(index) ;
+			System.err.println("move sorted "+ move.getX() + " " + move.getY());
+		}
 		if(byForceStopCondition == 1) byForceStopCondition = 2;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
