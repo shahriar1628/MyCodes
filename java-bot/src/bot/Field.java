@@ -586,15 +586,16 @@ public class Field {
 		return measurement(botID,opID) - measurement(opID,botID)  ;
 	}
 	public int seeEffect(int mx ,int my,int botId,int opId) {
+		if(mx% 3 ==1 && my% 3 == 1 ) return -2;
 		int effect = 0 ;
 		if(mMacroboard[mx/3][my/3]==botId)  effect =20;
 		if(whoWinGame()==botId) effect =70; 
 		if(effect == 0) {
 				effect = sameRowColumn( mx, my, botId) ; 
-				if(effect != 0) effect++;
-				if(mx% 3 ==1 && my% 3 == 1 && effect != 0 ) effect  = effect - 1 ;
-				
-			
+				if(effect == 0) {
+					//check center row direct or not 
+					if(mx% 3 ==1 || my% 3 == 1 ) return -1;
+				}
 		}
 		mBoard[mx][my] = opId;
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
@@ -602,7 +603,7 @@ public class Field {
 		if(whoWinGame()==opId) effect =50;  
         if(effect == 0) {
         	effect = sameRowColumn( mx, my, opId) ; 
-        	if(mx% 3 ==1 && my% 3 == 1 && effect != 0 ) effect  = effect - 1 ;
+        	//if(mx% 3 ==1 && my% 3 == 1 && effect != 0 ) effect  = effect - 1 ;
 		} 
        
 		
@@ -624,7 +625,7 @@ public class Field {
 				int point = 0;
 				//horizon
 				for(int y = boardRow ; y<boardRow+3 ; y++ ) {
-					if(my !=y || y%3==1) continue;
+					if(my !=y || my%3==1) continue;
 					boolean win = true;
 					for(int x = boardCol ; x<boardCol+3 ; x++ ) {
 						if(mBoard[x][y] !=0 && mBoard[x][y] !=botId  ) {
@@ -641,7 +642,7 @@ public class Field {
 				
 				
 				for(int y = boardCol ; y<boardCol+3 ; y++ ) {
-					if(mx !=y || y%3==1) continue;
+					if(mx !=y || mx%3==1) continue;
 					boolean win = true;
 					for(int x = boardRow ; x<boardRow+3 ; x++ ) {
 						if(mBoard[y][x] !=0 && mBoard[y][x] !=botId  ) {

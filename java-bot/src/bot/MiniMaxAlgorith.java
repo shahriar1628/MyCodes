@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 
 
@@ -50,18 +51,22 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 			}
 			
 		}
-		
-		
-		if(availabelMoves.size() <=40 && depth ==1  && availabelMoves.size() >12  && byForceStopCondition == 0  ) this._depth = 4;
+		if(depth==1 || depth==2)
+		   Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
+	
+		/* testing 
 		for(int index =0; index<availabelMoves.size();index++) {
 			Move move = (Move) availabelMoves.get(index) ;
 			System.err.println("move "+ move.getX() + " " + move.getY());
 		}
-		Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
+		
 		for(int index =0; index<availabelMoves.size();index++) {
 			Move move = (Move) availabelMoves.get(index) ;
 			System.err.println("move sorted "+ move.getX() + " " + move.getY());
 		}
+		 Scanner _scanner = new Scanner(System.in);
+		 _scanner.nextLine();
+		 */
 		if(byForceStopCondition == 1) byForceStopCondition = 2;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
@@ -223,7 +228,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 			   newGameInstance = new Field(_initGame.getMboard(),_initGame.getMacroboard()) ;
 			   newGameInstance.updateTemporaryField(o2.getX(),o2.getY(), _botId);
 			   int  effect2 = newGameInstance.seeEffect(o2.getX(),o2.getY(), _botId, _optId) ;
-			   return effect1 - effect2 ;
+			   return effect2 - effect1 ;
 	    }
 	}
 	
