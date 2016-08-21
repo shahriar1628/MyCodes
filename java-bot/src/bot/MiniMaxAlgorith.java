@@ -50,23 +50,29 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 				return bestmoveByGreedyAlgo(game,botID,oponentBotID,depth) ;
 			}
 			
-		}
+		} 
+		
 		if(depth==1 || depth==2)
 		   Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
 	
 		/* testing 
+		
 		for(int index =0; index<availabelMoves.size();index++) {
 			Move move = (Move) availabelMoves.get(index) ;
 			System.err.println("move "+ move.getX() + " " + move.getY());
 		}
 		
+		if(depth==1 ) {
 		for(int index =0; index<availabelMoves.size();index++) {
 			Move move = (Move) availabelMoves.get(index) ;
 			System.err.println("move sorted "+ move.getX() + " " + move.getY());
 		}
+		}
 		 Scanner _scanner = new Scanner(System.in);
 		 _scanner.nextLine();
+		 
 		 */
+		 
 		if(byForceStopCondition == 1) byForceStopCondition = 2;
 		for(int index =0; index<availabelMoves.size();index++) {
 				Move move = (Move) availabelMoves.get(index) ;
@@ -84,9 +90,9 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 						getScore = getScore + 100 ;
 					}
 				}
-				if (depth == 1) {
-					//System.out.println(move.mX + " " + move.mY + " " + getScore);
-				}
+			//	if (depth == 1) {
+				//	System.out.println(move.mX + " " + move.mY + " " + getScore);
+				//}
 					if(botID == BotParser.mBotId) {
 						/*
 						if(returnScore <getScore) {
