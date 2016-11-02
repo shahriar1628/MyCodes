@@ -592,10 +592,7 @@ public class Field {
 		if(whoWinGame()==botId) effect =70; 
 		if(effect == 0) {
 				effect = sameRowColumn( mx, my, botId) ; 
-				if(effect == 0) {
-					//check center row direct or not 
-					if(mx% 3 ==1 || my% 3 == 1 ) return -1;
-				}
+				
 		}
 		mBoard[mx][my] = opId;
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
@@ -610,7 +607,11 @@ public class Field {
 		//fall back 
         mBoard[mx][my] = botId;
 		mMacroboard[mx/3][my/3] = getConditionMacroBoard(mx/3, my/3) ;
-		if(botId == BotParser.oBotID) return effect *(-1);
+		if(effect == 0) {
+			//check center row direct or not 
+			if(mx% 3 ==1 || my% 3 == 1 ) return -1;
+		}
+		//if(botId == BotParser.oBotID) return effect *(-1);
 		return effect;
 		
 	}
