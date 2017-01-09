@@ -20,6 +20,7 @@ package bot;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Field class
@@ -36,6 +37,8 @@ public class Field {
     private int mMoveNr;
 	private int[][] mBoard;
 	private int[][] mMacroboard;
+	private int[] centerRowPosition = {3,6,0,0,0,3,6,3,6};
+	private int[] centerColPosition = {0,0,3,6,0,3,6,6,3};
 
 	private final int COLS = 9, ROWS = 9;
 	private String mLastError = "";
@@ -395,6 +398,7 @@ public class Field {
 		int boardCol = mcol*3 ; 
 		int boardRow = mrow * 3; 
 		int point = 0 ; 
+		int secondPoint = 0;
 		int tempPoint = 3;
 		int totalPoint = 10;
 		boolean winPos = false;
@@ -416,6 +420,7 @@ public class Field {
 			}
 			if(win ) {
 				winPos = true ;
+				if(point==1)secondPoint = 2;
 				totalPoint = min(totalPoint,point);
 			}
 		}
@@ -437,6 +442,7 @@ public class Field {
 			}
 			if(win) {
 				winPos = true ;
+				if(point==1) secondPoint = 2;
 				totalPoint = min(totalPoint,point);
 			}
 		}
@@ -450,6 +456,7 @@ public class Field {
 					if(mBoard[boardCol][boardRow] == botid)  point--; 
 					if(mBoard[boardCol+1][boardRow+1] == botid) point--;
 					if(mBoard[boardCol+2][boardRow+2] == botid)  point--; 
+					if(point==1) secondPoint = 2;
 					totalPoint = min(totalPoint,point);
 				}
 			}
@@ -460,6 +467,7 @@ public class Field {
 					if(mBoard[boardCol][boardRow+2] == botid)  point--;
 					if(mBoard[boardCol+1][boardRow+1] == botid)  point--;
 					if(mBoard[boardCol+2][boardRow] == botid)  point--; 
+					 if(point==1) secondPoint = 2;
 					totalPoint = min(totalPoint,point);
 				}
 			}
@@ -468,6 +476,7 @@ public class Field {
 		
 		map.put("canWin", winPos);
 		map.put("point", 3-totalPoint);
+		map.put("secondPoint", secondPoint);
 		return map;
 		
 	}
@@ -581,9 +590,77 @@ public class Field {
 			  if(rDiag >0) { sum += rDiag; }
 			  return sum ;
 		}
-		
+	
+	
+	private int secondTypeMeasurement(int botID,int optID) {
+	  int positivePoint = 0; 
+	  int negativePoint = 0; 
+	  
+	   for(int row=0;row<ROWS/3;row++)
+	   {
+	     for(int col=0;col<COLS/3;col++)
+	     { 
+	       if(mMacroboard[row][col]==0) {
+	         Map canwin1 = canwin(botID,col,row) ;
+	         Map canwin2 = canwin(optID,col,row) ;
+	         if( (boolean) canwin1.get("canWin"))
+	         positivePoint+=  (int) canwin1.get("secondPoint");
+	         if((boolean) canwin2.get("canWin"))
+	         negativePoint+=  (int) canwin2.get("secondPoint");
+	       }
+	       
+	       if(mMacroboard[row][col]==botID || mMacroboard[row][col]==optID ) {
+	         if(mMacroboard[row][col]==botID) positivePoint+=5;
+	         if(mMacroboard[row][col]==optID) negativePoint+=5;
+	         if(mMacroboard[row][col]==optID && row==1 && col==1) negativePoint+=5;
+	         if(mMacroboard[row][col]==botID && row==1 && col==1) positivePoint+=5;
+	         if(cornerBoard(row,col)){
+	           if(mMacroboard[row][col]==botID)  positivePoint+=3; 
+	           else negativePoint+=3;
+	         }
+	       }
+	      
+	     }
+	   } 
+	   int mBoardRow=1;
+	   int mBoardCol = 1;
+	    for(int loop=0;loop<centerRowPosition.length;loop++) {
+	      if(mBoard[mBoardRow+centerRowPosition[loop]][mBoardCol+centerColPosition[loop]] == botID) positivePoint+=3;
+	      if(mBoard[mBoardRow+centerRowPosition[loop]][mBoardCol+centerColPosition[loop]] == optID) negativePoint+=3;
+	    }
+	    Map centerposition = centerBoardPosition(botID,optID) ;
+	     positivePoint+=3*((int) centerposition.get("player1") );
+	     negativePoint+=3*((int) centerposition.get("player2") );
+	    positivePoint+=boardWin(botID, optID);
+	    negativePoint+=boardWin(optID,botID);
+
+    return positivePoint - negativePoint ;
+}
+	
+	private boolean cornerBoard(int x,int y) {
+	  if(x == 0 && y == 0) return true; 
+	  if(x == 0 && y == 2) return true; 
+	  if(x == 2 && y == 0) return true; 
+	  if(x == 2 && y == 2) return true; 
+	  return false;
+	}
+	private Map centerBoardPosition(int botId,int optId) {
+	  Map position = new HashMap<>();
+	   int player1 = 0, player2= 0; 
+	   for(int row=3;row<6;row++)
+	   {
+	     for(int col=3;col<6;col++) {
+	       if(mBoard[row][col]==botId) player1++;
+	       if(mBoard[row][col]==optId) player2++;
+	     }
+	   }
+	   position.put("player1", player1);
+	   position.put("player2", player2);
+	   return position;
+	}
 	public int advanceHuristicAnalysis(int botID,int opID) {
-		return measurement(botID,opID) - measurement(opID,botID)  ;
+		//return measurement(botID,opID) - measurement(opID,botID)  ;
+	  return secondTypeMeasurement(botID, opID);
 	}
 	public int seeEffect(int mx ,int my,int botId,int opId) {
 		if(mx% 3 ==1 && my% 3 == 1 ) return -2;
@@ -697,5 +774,117 @@ public class Field {
 	public int getMoveNumber() {
 		return mMoveNr ;
 	}
+	
+	
+	private int boardWin(int botID,int optid) {
+    
+    int sum = 0;
+    int leftDiag = 0;
+   
+for (int x = 0; x < COLS/3; x++) {
+  int vertical =0;
+    for (int y = 0; y < ROWS/3; y++) { 
+    if(mMacroboard[x][y] == optid) {
+      vertical = 0;
+      break;
+    }
+    if(mMacroboard[x][y] == botID) { 
+      
+      vertical =  (vertical == 0) ?  5 :  vertical + vertical;
+    }
+    if(mMacroboard[x][y] == 0 || mMacroboard[x][y] == -1 ) {
+      HashMap map = canwin(botID, x, y) ;
+      if(  ((boolean) map.get("canWin")) ==  false) {
+        vertical = 0; 
+        break;
+      } else {
+        vertical =  (vertical == 0) ?  (int) map.get("point") :  vertical + (int) map.get("point");
+      }
+        
+    }
+    
+    } 
+   if(vertical >0) sum+=4;
+    
+}
+
+for (int x = 0; x < ROWS/3; x++) {
+        int horizon =0;
+    for (int y = 0; y < COLS/3; y++) {
+    if(mMacroboard[y][x] == optid) {
+      horizon = 0; 
+      break;
+    }
+    if(mMacroboard[y][x] == botID) {
+      horizon =  (horizon == 0) ?  5 :  horizon + horizon;
+    }
+    if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+      HashMap map = canwin(botID, y, x) ;
+      if(((boolean) map.get("canWin")) ==  false) {
+        horizon = 0; 
+        break;
+      } else {
+        horizon =  (horizon == 0) ?  (int) map.get("point") :  horizon + (int) map.get("point");
+      }
+    }
+    
+    } 
+  
+    if(horizon >0) sum+=4;
+    
+}
+int lDiag =0;
+int u;
+    int rDiag =0;
+for (int x = 0; x < ROWS/3; x++) {
+    for (int y = 0; y < COLS/3; y++) {
+      if(x == y || (x==0 && y==2) || (y==2 && x==0)) {
+        if(x==y && lDiag !=-1 ) {
+          if(mMacroboard[y][x] == optid) {
+            lDiag=-1;
+            if(x==1) rDiag = -1;
+          }
+          if(mMacroboard[y][x] == botID) {
+            lDiag = (lDiag == 0) ? 5 : lDiag + lDiag;
+            if(x==1) rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
+          }
+          if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+            HashMap map = canwin(botID, y, x) ;
+            if(((boolean) map.get("canWin")) ==  false) {
+              if(x==1) rDiag = -1;
+              lDiag = -1; 
+            }else {
+              lDiag =  (lDiag == 0) ?  (int) map.get("point") :  lDiag + (int) map.get("point");
+            }
+             }
+       } else if(((x==0 && y==2) || (y==2 && x==0) || (y==1 && x==1) ) && rDiag !=-1) {
+         if(mMacroboard[y][x] == optid) {
+               rDiag = -1; 
+          }
+          if(mMacroboard[y][x] == botID) {
+             rDiag = (rDiag == 0) ? 5 : rDiag + rDiag;
+          }
+          if(mMacroboard[y][x] == 0 || mMacroboard[y][x] == -1 ) {
+            HashMap map = canwin(botID, y, x) ;
+            if(((boolean) map.get("canWin")) ==  false) {
+              rDiag = -1; 
+            }else {
+              rDiag =  (rDiag == 0) ?  (int) map.get("point") :  rDiag + (int) map.get("point");
+            }
+          }
+         
+         }
+      } else {
+        continue;
+      }
+    
+    }
+    
+    }
+     
+    if(lDiag >0) { sum += 4; }
+    if(rDiag >0) { sum += 4; }
+    return sum ;
+}
 	
 }

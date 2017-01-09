@@ -34,3 +34,14 @@ def minimax(game, depth)
         return scores[min_score_index]
     end
 end
+
+
+Our second heuristic (heur2) takes into consideration many more features of the given board:
+ small board wins add 5 points,
+  winning the center board adds 10,
+   winning a corner board adds 3,
+    getting a center square in any small board is worth 3,
+     and getting a square in the center board is worth 3. 
+     Two board wins which can be continued for a winning sequence (i.e. they are in a row, column or diagonal without an interfering win for the other player in the third board of the sequence) are worth 4 points,
+      and a similar sequence inside a small board is worth 2 points.
+       A symmetric negative score is given if the other player has these features.

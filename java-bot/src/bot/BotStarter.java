@@ -41,7 +41,7 @@ public class BotStarter {
 		int moveNumnber = field.getMoveNumber() ; 
 		if(moveNumnber == 1) return new Move(4,4);
 		int depth = 2;
-		if(moveNumnber<=9) depth = 2;
+		if(moveNumnber<=9) depth = 4;
 		else if(moveNumnber <=40) depth =  6; 
 		else depth = 10; 
 		MiniMaxAlgorith minimax = new MiniMaxAlgorith(depth);

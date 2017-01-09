@@ -90,9 +90,10 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 						getScore = getScore + 100 ;
 					}
 				}
-			//	if (depth == 1) {
-				//	System.out.println(move.mX + " " + move.mY + " " + getScore);
-				//}
+				/*
+				if (depth == 1) {
+					System.out.println(move.mX + " " + move.mY + " " + getScore);
+				}*/
 					if(botID == BotParser.mBotId) {
 						/*
 						if(returnScore <getScore) {
@@ -147,9 +148,9 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 			}
 		   if(depth ==1  && getScore >-288 )
 			   getScore = getScore + newGameInstance.crosscheck(move.mX ,move.mY,BotParser.mBotId,BotParser.oBotID,botID);
-		   if(depth == 1) {
+		 //  if(depth == 1) {
 				//System.out.println(move.mX + " "+move.mY + " " + getScore );
-			}
+		//}
 		   
 		   if(botID == BotParser.mBotId) {
 			   int temp = getMax(returnScore, getScore) ;
@@ -209,10 +210,13 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 	}
 	
 	private int advanceHuristicAnalysis(Field game,int botID,int opID) {
+
 		int huristicValue = game.advanceHuristicAnalysis(botID,opID); 
 		if(huristicValue==0)  huristicValue = -1;
-		if(botID ==  BotParser.mBotId)  return huristicValue;
-		return huristicValue * (-1) ;
+		if(botID ==  BotParser.mBotId) {
+		  return huristicValue;
+		}
+		return huristicValue * (-1)  ;
 		
 	}
 	
