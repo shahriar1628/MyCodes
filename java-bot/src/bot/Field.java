@@ -600,7 +600,7 @@ public class Field {
 	   {
 	     for(int col=0;col<COLS/3;col++)
 	     { 
-	       if(mMacroboard[row][col]==0) {
+	       if(mMacroboard[row][col]==0 || mMacroboard[row][col]==-1) {
 	         Map canwin1 = canwin(botID,col,row) ;
 	         Map canwin2 = canwin(optID,col,row) ;
 	         if( (boolean) canwin1.get("canWin"))
