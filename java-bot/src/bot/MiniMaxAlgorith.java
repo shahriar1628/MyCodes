@@ -39,7 +39,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 		 if(depth > _depth  || byForceStopCondition == 2  ) {
 			return advanceHuristicAnalysis(game,botID, oponentBotID)  ;
 		}
-		 
+		/* 
 		if(availabelMoves.size()>12 && depth !=1 && byForceStopCondition == 0  ) {
 			if(availabelMoves.size()<=40) {
 				if(botID == BotParser.mBotId)
@@ -51,7 +51,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 			}
 			
 		} 
-		
+		*/
 		if(depth==1 || depth==2)
 		   Collections.sort(availabelMoves, new CustomComparator(game,botID,oponentBotID));
 	
@@ -82,6 +82,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 				int getScore  = 0;
 				getScore = miniMax(newGameInstance,depth,oponentBotID,alpha,bita,byForceStopCondition)  ;
 				//int tempInstantEff = newGameInstance.seeEffect(move.mX ,move.mY,botID,oponentBotID);
+				/*
 				if(newGameInstance.getAvailableMoves().size() > 9   ) {
 					if(getScore <=0 && botID == BotParser.mBotId) {
 						getScore = getScore - 100 ;
@@ -90,6 +91,7 @@ public Integer miniMax(Field game,int depth,int botID,int alpha,int bita,int byF
 						getScore = getScore + 100 ;
 					}
 				}
+				*/
 				/*
 				if (depth == 1) {
 					System.out.println(move.mX + " " + move.mY + " " + getScore);
