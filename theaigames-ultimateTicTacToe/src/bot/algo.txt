@@ -1,0 +1,47 @@
+def score(game, depth)
+    if game.win?(@player)
+        return 10 - depth
+    elsif game.win?(@opponent)
+        return depth - 10
+    else
+        return 0
+    end
+end
+
+def minimax(game, depth)
+    return score(game) if game.over?
+    depth += 1
+    scores = [] # an array of scores
+    moves = []  # an array of moves
+
+    # Populate the scores array, recursing as needed
+    game.get_available_moves.each do |move|
+        possible_game = game.get_new_state(move)
+        scores.push minimax(possible_game, depth)
+        moves.push move
+    end
+
+    # Do the min or the max calculation
+    if game.active_turn == @player
+        # This is the max calculation
+        max_score_index = scores.each_with_index.max[1]
+        @choice = moves[max_score_index]
+        return scores[max_score_index]
+    else
+        # This is the min calculation
+        min_score_index = scores.each_with_index.min[1]
+        @choice = moves[min_score_index]
+        return scores[min_score_index]
+    end
+end
+
+
+Our second heuristic (heur2) takes into consideration many more features of the given board:
+ small board wins add 5 points,
+  winning the center board adds 10,
+   winning a corner board adds 3,
+    getting a center square in any small board is worth 3,
+     and getting a square in the center board is worth 3. 
+     Two board wins which can be continued for a winning sequence (i.e. they are in a row, column or diagonal without an interfering win for the other player in the third board of the sequence) are worth 4 points,
+      and a similar sequence inside a small board is worth 2 points.
+       A symmetric negative score is given if the other player has these features.
